@@ -30,11 +30,14 @@ chmod +x classpuller.sh
 ```
 ### Per student pipeline:
 
-- If PARENT_DIR/UNIT/UNIT-<user> exists → pulls (git pull --ff-only)
+- If remote doesn’t exist → skips with a message
+
+- If remote doesn't have any commits found → skips with a message
 
 - If remote exists but local doesn’t → clones
+     - Will override current files if they already do exist in that directory !!
 
-- If remote doesn’t exist → skips with a message
+
 
 ## Changing Units
 Change the "UNIT" variable to the name of your unit (i.e. "unit-02") and run again (reuse the same students.txt of course).
