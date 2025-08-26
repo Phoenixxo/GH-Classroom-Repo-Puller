@@ -38,16 +38,16 @@ while read -r user || [[ -n "${user:-}" ]]; do # -r used to disable backslash es
     continue
   fi
 
-  if gh repo view "$slug" >/dev/null 2>&1; then # if the repo is null
+  if gh repo view "$slug" >/dev/null 2>&1; then # if the repo is null (not yet created locally)
     echo "==> Cloning $slug"
-    if [[ "$USE_SSH" -eq 1 ]]; then # ssh
+    if [[ "$USE_SSH" -eq 1 ]]; then # using ssh
       gh repo clone "$slug" "$local_dir" # clone into the repo's designated directory
     else
-      url=$(gh repo view "$slug" --json url --jq .url) # html
+      url=$(gh repo view "$slug" --json url --jq .url) # using html
       git clone "$url" "$local_dir"
     fi
   else
-    echo "!! Missing remote (skipping): $slug" # repo not found for student
+    echo "!! Missing remote (skipping): $slug" # remote repo not found for student
   fi
 done < "$STUDENTS_FILE"
 
