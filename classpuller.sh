@@ -2,19 +2,24 @@
 # Run in bash script
 set -euo pipefail # used to ensure the script is safely ran, exiting on errors including undefined errors (-u), and one fail fails the whole pipeline.
 
+GREEN="\033[1;32m"
+RED="\033[1;31m"
+YELLOW="\033[0;33m"
+RESET="\033[0m"
+
 # --- config ---
-ORG="GCIS-123-Fall2025"     # Name of Org 
-UNIT="unit01"       # current unit
-PARENT_DIR="/Users/phoenixxo/GCIS123/"      # where repos should be cloned to
+ORG=""     # Name of Org 
+UNIT=""       # current unit
+PARENT_DIR=""      # where repos should be cloned to
 USE_SSH=1           # use ssh or http (0)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 STUDENTS_FILE="$SCRIPT_DIR/students.txt"
 # Set the grading cutoff to the deadline, adjust accordingly
-CUTOFF_ISO="2025-09-15 23:59:59 -0400" # uses ISO format 
+CUTOFF_ISO="2025-08-27 12:00:00 -0400" # uses ISO format 
 
 # --- checks ---
-command -v gh >/dev/null || { echo "GitHub CLI (gh) not found. Install and run 'gh auth login'."; exit 1; } # safety command checks
-command -v git >/dev/null || { echo "git not found."; exit 1; } # safety command checks
+command -v gh >/dev/null || { echo -e "${RED}GitHub CLI (gh) not found. Install and run 'gh auth login'."${RESET}; exit 1; } # safety command checks
+command -v git >/dev/null || { echo -e "${RED}git not found."; exit 1; } # safety command checks
 
 CUTOFF_SAFE="$CUTOFF_ISO" # name for dir, // replaces all ":" with "-"
 CUTOFF_SAFE="${CUTOFF_SAFE/T/_}"
@@ -29,10 +34,10 @@ while read -r user || [[ -n "${user:-}" ]]; do # -r used to disable backslash es
 
   repo_name="${UNIT}-${user}" # constructs repo name
   slug="${ORG}/${repo_name}" # full name living in github
-  echo "=== $slug"
+  echo -e "${GREEN}=== $slug${RESET}"
 
   if ! gh repo view "$slug" >/dev/null 2>&1; then # checks if remote repo is missing (deletes output of error: /dev/null)
-	  echo "!! Missing remote (skipping): $slug"
+	  echo -e "${RED}!! Missing remote (skipping): $slug"
 	  continue
   fi
 
@@ -66,7 +71,7 @@ while read -r user || [[ -n "${user:-}" ]]; do # -r used to disable backslash es
   deadline_sha="$(git -C "$tmp_repo" rev-list -n 1 --before="$CUTOFF_ISO" "origin/$default_branch" || true)" # Pick the last commit before cutoff
 
   if [[ -z "${deadline_sha:-}" ]]; then
-    echo "!! No commit on $default_branch at/before $CUTOFF_ISO (treat as no submission)"
+    echo -e "${YELLOW}!! No commit on $default_branch at/before $CUTOFF_ISO (treat as no submission)"
     rm -rf "$tmp_repo"
     continue
   fi # Checking to see if any commits are found, prints message if no commit found.
@@ -74,15 +79,17 @@ while read -r user || [[ -n "${user:-}" ]]; do # -r used to disable backslash es
   git -C "$tmp_repo" --work-tree="$dest" checkout --force "$deadline_sha" -- . >/dev/null # Add commit directly into $dest folder.
   # Minimal manifest for auditing
   {
-    echo "Repository: $slug" # outputs repo
-    echo "Unit: $UNIT" # outputs unit
-    echo "Cutoff: $CUTOFF_ISO" # outputs cutoff time for current run
-    echo "Default branch: $default_branch" # outputs the default branch
-    echo "Selected commit: $deadline_sha" # outputs the selected commit hash
-    echo "Snapshot created (UTC): $(date -u +'%Y-%m-%dT%H:%M:%SZ')" # time created, obviously
+    echo -e "Repository: $slug" # outputs repo
+    echo -e "Unit: $UNIT" # outputs unit
+    echo -e "Cutoff: $CUTOFF_ISO" # outputs cutoff time for current run
+    echo -e "Default branch: $default_branch" # outputs the default branch
+    echo -e "Selected commit: $deadline_sha" # outputs the selected commit hash
+    echo -e "Snapshot created (UTC): $(date -u +'%Y-%m-%dT%H:%M:%SZ')" # time created, obviously
   } > "$dest/SUBMISSION_INFO.txt" # stores all of this in a txt file.
 
   rm -rf "$tmp_repo"
 
-  echo "=> Snapshot: $dest" # links to destination.
+  echo -e "${GREEN}=> Snapshot: $dest" # links to destination.
 done < "$STUDENTS_FILE" # Inputs students_file to be read.
+
+
