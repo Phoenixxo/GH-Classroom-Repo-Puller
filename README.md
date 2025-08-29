@@ -4,7 +4,7 @@ Tiny script to clone or pull GitHub Classroom forks for a unit (repos like `$UNI
 
 ## Requirements
 - macOS/Linux (Bash)
-- `git` and GitHub CLI `gh`
+- `git`, GitHub CLI `gh`, and `jq`
 - Logged in: `gh auth login`
 - SSH working (`ssh -T git@github.com`) **or** set HTTPS in the script
 
@@ -15,6 +15,7 @@ Tiny script to clone or pull GitHub Classroom forks for a unit (repos like `$UNI
    - `UNIT="unit"`
    - `PARENT_DIR="/path/to/parent_dir"`
    - `USE_SSH=1` (set `0` to use HTTPS)
+   - `CUTOFF_ISO=YYYY-MM-DDTHH:MM:SSZ` (fill in letters with desired time)
 
 `students.txt` (one GitHub handle per line):
 ```text
@@ -26,14 +27,15 @@ charlie
 ## Run
 ```bash
 chmod +x classpuller.sh
-./classpuller.sh
+./classpuller.sh [event-pages to check] (default 3)
 ```
 ### Per student pipeline:
 
 - If remote doesn’t exist → skips with a message
 
 - If remote doesn't have any commits found → skips with a message
-
+   - Does not find starter repo commits as those were done before the fork!
+     
 - If remote exists but local doesn’t → clones
      - Will override current files if they already do exist in that directory !!
 
