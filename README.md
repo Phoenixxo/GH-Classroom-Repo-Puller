@@ -4,9 +4,20 @@ Tiny script to clone or pull GitHub Classroom forks for a unit (repos like `$UNI
 
 ## Requirements
 - macOS/Linux (Bash)
-- `git`, GitHub CLI `gh`, and `jq`
+- `git`, GitHub CLI `gh`, and [`jq`](https://jqlang.org/)
 - Logged in: `gh auth login`
 - SSH working (`ssh -T git@github.com`) **or** set HTTPS in the script
+
+### Windows Users
+This currently doesn't run natively on windows, however I've found a solution below that should work.
+- Use Git for Windows (with Git Bash).
+   - Install git (comes with Git Bash), GitHub CLI, and jq for Windows.
+
+- Adjust PARENT_DIR paths to Git Bash style.
+
+- Run the script from Git Bash as you would on Linux/macOS.
+
+- **!! Interested in contributing a powershell script? Read below!**
 
 ## Setup
 1. Put `classpuller.sh` and `students.txt` in the **same folder**.
@@ -79,3 +90,16 @@ Verify:
 ssh -T git@github.com
 # Expect: "Hi <username>! You've successfully authenticated, but GitHub does not provide shell access."
 ```
+---
+## Contributing
+#### Contributions are welcome! Some ideas where help would be especially useful:
+
+- **Windows PowerShell port**
+   - A native PowerShell implementation (without jq) would make this tool more accessible to Windows users outside of WSL/Git Bash. If you’d like to contribute, please open a PR with a classpuller.ps1 script and update the README accordingly.
+
+- **General improvements**
+   - Error handling / edge cases
+   - Better logging and diagnostics
+   - Additional config options
+
+#### If you’d like to help, fork the repo, create a branch, and submit a pull request!
